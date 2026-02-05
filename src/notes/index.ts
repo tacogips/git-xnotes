@@ -35,6 +35,8 @@ export {
   replaceNote,
   removeNote,
   appendComment,
+  updateNote,
+  updateCommentInNote,
 } from "./writer.js";
 
 // Merging

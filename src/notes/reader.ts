@@ -6,10 +6,7 @@
 
 import { exec } from "../git/commands.js";
 import { parseNotesList } from "../git/parser.js";
-import {
-  type Comment,
-  parseComment,
-} from "../types/index.js";
+import { type Comment, parseComment } from "../types/index.js";
 import { type NotesRefType, getNotesRef } from "./refs.js";
 
 /**
@@ -31,13 +28,12 @@ export interface ReadNotesOptions {
 export async function readNoteRaw(
   ref: NotesRefType,
   commit: string,
-  options?: ReadNotesOptions
+  options?: ReadNotesOptions,
 ): Promise<string | null> {
   const notesRef = getNotesRef(ref);
-  const result = await exec(
-    ["notes", `--ref=${notesRef}`, "show", commit],
-    { cwd: options?.cwd }
-  );
+  const result = await exec(["notes", `--ref=${notesRef}`, "show", commit], {
+    cwd: options?.cwd,
+  });
 
   if (result.exitCode !== 0) {
     // Note doesn't exist
@@ -60,7 +56,7 @@ export async function readNote<T>(
   ref: NotesRefType,
   commit: string,
   parser: (line: string) => T,
-  options?: ReadNotesOptions
+  options?: ReadNotesOptions,
 ): Promise<T[]> {
   const content = await readNoteRaw(ref, commit, options);
 
@@ -94,13 +90,12 @@ export async function readNote<T>(
  */
 export async function listNotesCommits(
   ref: NotesRefType,
-  options?: ReadNotesOptions
+  options?: ReadNotesOptions,
 ): Promise<Map<string, string>> {
   const notesRef = getNotesRef(ref);
-  const result = await exec(
-    ["notes", `--ref=${notesRef}`, "list"],
-    { cwd: options?.cwd }
-  );
+  const result = await exec(["notes", `--ref=${notesRef}`, "list"], {
+    cwd: options?.cwd,
+  });
 
   if (result.exitCode !== 0) {
     // Notes ref doesn't exist yet
@@ -119,7 +114,7 @@ export async function listNotesCommits(
  */
 export async function readComments(
   commit: string,
-  options?: ReadNotesOptions
+  options?: ReadNotesOptions,
 ): Promise<Comment[]> {
   return readNote("discuss", commit, parseComment, options);
 }
@@ -133,12 +128,11 @@ export async function readComments(
  */
 export async function notesRefExists(
   ref: NotesRefType,
-  options?: ReadNotesOptions
+  options?: ReadNotesOptions,
 ): Promise<boolean> {
   const notesRef = getNotesRef(ref);
-  const result = await exec(
-    ["rev-parse", "--verify", notesRef],
-    { cwd: options?.cwd }
-  );
+  const result = await exec(["rev-parse", "--verify", notesRef], {
+    cwd: options?.cwd,
+  });
   return result.exitCode === 0;
 }

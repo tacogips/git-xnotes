@@ -24,7 +24,11 @@ describe("exec", () => {
   });
 
   test("returns non-zero exit code for failed command", async () => {
-    const result = await exec(["rev-parse", "--verify", "nonexistent-ref-123456"]);
+    const result = await exec([
+      "rev-parse",
+      "--verify",
+      "nonexistent-ref-123456",
+    ]);
     expect(result.exitCode).not.toBe(0);
   });
 });
@@ -37,7 +41,7 @@ describe("execOrThrow", () => {
 
   test("throws GitError on failure", async () => {
     await expect(
-      execOrThrow(["rev-parse", "--verify", "nonexistent-ref-123456"])
+      execOrThrow(["rev-parse", "--verify", "nonexistent-ref-123456"]),
     ).rejects.toThrow(GitError);
   });
 });

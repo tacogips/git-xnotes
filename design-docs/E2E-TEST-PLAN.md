@@ -16,6 +16,22 @@ This document describes the end-to-end (E2E) integration test plan for git-xnote
 2. Git configured with user.name and user.email
 3. git-xnotes project built and available
 
+## GitHub Test Repository
+
+For testing GitHub integration features (PR import/export, sync), use the dedicated test repository:
+
+- **Repository**: https://github.com/tacogips/gitcodes-mcp-test-1
+- **Purpose**: Real GitHub API integration testing with actual PRs
+- **Usage**:
+  1. Clone the repository
+  2. Create branches and PRs with test comments
+  3. Test import-pr/export-pr commands against real PRs
+  4. Verify GitHub API integration works correctly
+
+**Note**: This repository is for testing purposes only. Do not use production repositories for E2E testing.
+
+---
+
 ## Test Scenarios
 
 ### Phase 1: Core Local Operations
@@ -115,9 +131,60 @@ This document describes the end-to-end (E2E) integration test plan for git-xnote
 
 ---
 
-### Phase 3: Configuration
+### Phase 3: GitHub PR Import/Export
 
-#### TEST-008: Configuration
+#### TEST-009: Import PR Comments
+
+**Purpose**: Test the `import-pr` command with real GitHub PR
+
+**Pre-requisites**:
+- GitHub token configured
+- Test PR exists in https://github.com/tacogips/gitcodes-mcp-test-1
+
+**Steps**:
+1. Clone the test repository
+2. Checkout a branch with an open PR
+3. Run `git-xnotes import-pr --pr <PR_NUMBER>`
+4. Verify empty commit anchor is created
+5. Verify comments are stored with source metadata
+
+**Expected Result**: PR comments imported as git notes on empty commit
+
+---
+
+#### TEST-010: Export Comments to PR
+
+**Purpose**: Test the `export-pr` command
+
+**Steps**:
+1. Add a local comment to a commit
+2. Run `git-xnotes export-pr --pr <PR_NUMBER>`
+3. Verify comment appears on GitHub PR
+4. Verify local comment updated with GitHub comment ID
+
+**Expected Result**: Local comments published to GitHub PR
+
+---
+
+#### TEST-011: Import/Export Deduplication
+
+**Purpose**: Test duplicate prevention via GitHub comment IDs
+
+**Steps**:
+1. Import PR comments (TEST-009)
+2. Run import again
+3. Verify already-imported comments are skipped
+4. Export a comment (TEST-010)
+5. Run export again
+6. Verify already-exported comments are skipped
+
+**Expected Result**: No duplicate comments created
+
+---
+
+### Phase 4: Configuration
+
+#### TEST-012: Configuration
 
 **Purpose**: Test the `config` command
 
@@ -140,7 +207,8 @@ Due to dependencies, tests should be executed in the following order:
 4. TEST-004 (Show comments)
 5. TEST-005 (Add various comment types)
 6. TEST-006, TEST-007 (Push/Pull)
-7. TEST-008 (Configuration)
+7. TEST-009, TEST-010, TEST-011 (GitHub PR Import/Export)
+8. TEST-012 (Configuration)
 
 ## Cleanup
 
@@ -160,7 +228,10 @@ rm -rf .private/sandbox-git/ .private/sandbox-bare/ .private/sandbox-clone/
 | TEST-005 | Add Various Comment Types | - | - |
 | TEST-006 | Push Notes | - | - |
 | TEST-007 | Pull Notes | - | - |
-| TEST-008 | Configuration | - | - |
+| TEST-009 | Import PR Comments | - | Requires GitHub token |
+| TEST-010 | Export Comments to PR | - | Requires GitHub token |
+| TEST-011 | Import/Export Deduplication | - | - |
+| TEST-012 | Configuration | - | - |
 
 ## Execution Commands
 
@@ -218,7 +289,24 @@ cd sandbox-clone
 xnotes pull
 xnotes list
 
-# TEST-008: Config
+# TEST-009-011: GitHub PR Import/Export (use test repository)
+cd <project-root>
+git clone https://github.com/tacogips/gitcodes-mcp-test-1 .private/github-test
+cd .private/github-test
+
+# Create a test PR with comments first (via GitHub UI or gh CLI)
+# Then test import:
+xnotes import-pr --pr 1
+
+# View imported comments
+xnotes list
+xnotes show
+
+# Add a local comment and export
+xnotes comment HEAD -m "Test export comment"
+xnotes export-pr --pr 1
+
+# TEST-012: Config
 xnotes config set debug true
 xnotes config get debug
 xnotes config list

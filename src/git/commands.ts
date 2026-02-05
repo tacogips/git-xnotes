@@ -47,7 +47,7 @@ export interface CommitInfo {
  */
 export async function exec(
   args: readonly string[],
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<GitCommandResult> {
   const spawnOptions: {
     cwd?: string;
@@ -90,19 +90,16 @@ export async function exec(
  */
 export async function execOrThrow(
   args: readonly string[],
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<string> {
   const result = await exec(args, options);
 
   if (result.exitCode !== 0) {
-    throw new GitError(
-      `Git command failed: git ${args.join(" ")}`,
-      {
-        command: `git ${args.join(" ")}`,
-        exitCode: result.exitCode,
-        stderr: result.stderr.trim(),
-      }
-    );
+    throw new GitError(`Git command failed: git ${args.join(" ")}`, {
+      command: `git ${args.join(" ")}`,
+      exitCode: result.exitCode,
+      stderr: result.stderr.trim(),
+    });
   }
 
   return result.stdout;
@@ -118,7 +115,7 @@ export async function execOrThrow(
 export async function getCurrentBranch(options?: GitOptions): Promise<string> {
   const output = await execOrThrow(
     ["rev-parse", "--abbrev-ref", "HEAD"],
-    options
+    options,
   );
   return output.trim();
 }
@@ -145,7 +142,7 @@ export async function getHeadCommit(options?: GitOptions): Promise<string> {
 export async function getMergeBase(
   ref1: string,
   ref2: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<string> {
   const output = await execOrThrow(["merge-base", ref1, ref2], options);
   return output.trim();
@@ -163,7 +160,7 @@ export async function getMergeBase(
 export async function getBranchBase(
   branch: string,
   target: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<string> {
   // Get the merge-base, then find the first commit after it on the branch
   const mergeBase = await getMergeBase(branch, target, options);
@@ -172,7 +169,7 @@ export async function getBranchBase(
   // rev-list returns commits from newest to oldest, so we get the last one
   const output = await execOrThrow(
     ["rev-list", "--ancestry-path", `${mergeBase}..${branch}`],
-    options
+    options,
   );
 
   const commits = output.trim().split("\n").filter(Boolean);
@@ -180,7 +177,7 @@ export async function getBranchBase(
   const firstCommit = commits[commits.length - 1];
   if (!firstCommit) {
     // Branch has no commits after merge-base, return HEAD of branch
-    return execOrThrow(["rev-parse", branch], options).then(s => s.trim());
+    return execOrThrow(["rev-parse", branch], options).then((s) => s.trim());
   }
 
   return firstCommit;
@@ -195,14 +192,14 @@ export async function getBranchBase(
  */
 export async function getCommitInfo(
   commit: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<CommitInfo> {
   // Use a custom format to get all info in one call
   // Format: hash%x00short%x00author%x00email%x00date%x00subject%x00body
   const format = "%H%x00%h%x00%an%x00%ae%x00%aI%x00%s%x00%b";
   const output = await execOrThrow(
     ["log", "-1", `--format=${format}`, commit],
-    options
+    options,
   );
 
   const parts = output.split("\0");
@@ -254,12 +251,9 @@ export async function getUserName(options?: GitOptions): Promise<string> {
  */
 export async function getRemoteUrl(
   remote: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<string> {
-  const output = await execOrThrow(
-    ["remote", "get-url", remote],
-    options
-  );
+  const output = await execOrThrow(["remote", "get-url", remote], options);
   return output.trim();
 }
 
@@ -272,7 +266,7 @@ export async function getRemoteUrl(
  */
 export async function refExists(
   ref: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<boolean> {
   const result = await exec(["rev-parse", "--verify", ref], options);
   return result.exitCode === 0;
@@ -287,7 +281,7 @@ export async function refExists(
  */
 export async function resolveRef(
   ref: string,
-  options?: GitOptions
+  options?: GitOptions,
 ): Promise<string> {
   const output = await execOrThrow(["rev-parse", ref], options);
   return output.trim();
@@ -300,10 +294,7 @@ export async function resolveRef(
  * @returns true if inside a git repo
  */
 export async function isInsideRepo(options?: GitOptions): Promise<boolean> {
-  const result = await exec(
-    ["rev-parse", "--is-inside-work-tree"],
-    options
-  );
+  const result = await exec(["rev-parse", "--is-inside-work-tree"], options);
   return result.exitCode === 0 && result.stdout.trim() === "true";
 }
 
@@ -314,9 +305,6 @@ export async function isInsideRepo(options?: GitOptions): Promise<boolean> {
  * @returns Absolute path to repo root
  */
 export async function getRepoRoot(options?: GitOptions): Promise<string> {
-  const output = await execOrThrow(
-    ["rev-parse", "--show-toplevel"],
-    options
-  );
+  const output = await execOrThrow(["rev-parse", "--show-toplevel"], options);
   return output.trim();
 }

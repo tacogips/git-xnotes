@@ -403,6 +403,119 @@ try {
 
 ---
 
+### GitHub PR Import/Export
+
+Import and export comments from/to GitHub Pull Requests.
+
+```typescript
+import {
+  importPRComments,
+  exportToGitHubPR,
+  detectPRNumber,
+  createGitHubClient,
+} from 'git-xnotes';
+```
+
+#### Types
+
+```typescript
+interface CommentSource {
+  provider: "github";
+  prNumber: number;
+  commentId: number;
+  commentType: "issue" | "review";
+  importedAt?: string;
+  exportedAt?: string;
+}
+
+interface ImportOptions {
+  cwd?: string;
+  prNumber?: number;
+  includeResolved?: boolean;
+  skipExisting?: boolean;
+  message?: string;
+  author?: string;
+}
+
+interface ImportResult {
+  commit: string | null;
+  imported: number;
+  skipped: number;
+  pr: SimplePR;
+}
+
+interface ExportOptions {
+  cwd?: string;
+  prNumber?: number;
+  skipImported?: boolean;
+  updateSource?: boolean;
+  skipReview?: boolean;
+}
+
+interface ExportCandidate {
+  commit: string;
+  comment: Comment;
+  hash: string;
+}
+
+interface ExportResult {
+  exported: number;
+  skipped: number;
+  candidates: ExportCandidate[];
+  updated: CommentWithHash[];
+}
+
+interface SimplePR {
+  number: number;
+  title: string;
+  base: string;
+  head: string;
+}
+```
+
+#### Functions
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `createGitHubClient(options?)` | Create GitHub API client | `GitHubClient` |
+| `detectPRNumber(client, options?)` | Auto-detect PR from branch | `Promise<number \| null>` |
+| `importPRComments(client, options?)` | Import PR comments to anchor commit | `Promise<ImportResult>` |
+| `exportToGitHubPR(client, options?)` | Export local comments to PR | `Promise<ExportResult>` |
+
+#### Example
+
+```typescript
+import {
+  createGitHubClient,
+  importPRComments,
+  exportToGitHubPR,
+  detectPRNumber,
+} from 'git-xnotes';
+
+// Create GitHub client (uses GITHUB_TOKEN env var)
+const client = createGitHubClient();
+
+// Auto-detect PR number from current branch
+const prNumber = await detectPRNumber(client, { cwd: '/path/to/repo' });
+
+// Import PR comments to local notes
+const importResult = await importPRComments(client, {
+  prNumber,
+  cwd: '/path/to/repo',
+});
+console.log(`Imported ${importResult.imported} comments to ${importResult.commit}`);
+
+// Export local comments to GitHub PR
+const exportResult = await exportToGitHubPR(client, {
+  prNumber,
+  cwd: '/path/to/repo',
+  skipReview: true,  // Skip interactive review
+});
+console.log(`Exported ${exportResult.exported} comments to PR #${prNumber}`);
+```
+
+---
+
 ## Data Types Reference
 
 ### Comment
@@ -416,7 +529,17 @@ interface Comment {
   original?: string;        // Original comment hash (for edits)
   resolved?: boolean;       // Thread resolved status
   location?: CommentLocation;
-  v: number;                // Schema version (0)
+  source?: CommentSource;   // PR source tracking (schema v1)
+  v: number;                // Schema version (0 or 1)
+}
+
+interface CommentSource {
+  provider: "github";       // Source provider
+  prNumber: number;         // PR number
+  commentId: number;        // GitHub comment ID
+  commentType: "issue" | "review";  // Comment type
+  importedAt?: string;      // Import timestamp
+  exportedAt?: string;      // Export timestamp
 }
 
 interface CommentLocation {

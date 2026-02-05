@@ -8,6 +8,7 @@
 export type {
   Comment,
   CommentLocation,
+  CommentSource,
   LineRange,
   CommentWithHash,
   CommentTree,

@@ -45,11 +45,15 @@ describe("getAllNotesRefs", () => {
 
 describe("getRemoteNotesRef", () => {
   test("returns remote ref with default origin", () => {
-    expect(getRemoteNotesRef("discuss")).toBe("origin/refs/notes/xnotes/discuss");
+    expect(getRemoteNotesRef("discuss")).toBe(
+      "origin/refs/notes/xnotes/discuss",
+    );
   });
 
   test("returns remote ref with custom remote", () => {
-    expect(getRemoteNotesRef("discuss", "upstream")).toBe("upstream/refs/notes/xnotes/discuss");
+    expect(getRemoteNotesRef("discuss", "upstream")).toBe(
+      "upstream/refs/notes/xnotes/discuss",
+    );
   });
 });
 

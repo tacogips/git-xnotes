@@ -11,6 +11,8 @@ import { registerCommentCommand } from "./commands/comment.js";
 import { registerPushCommand } from "./commands/push.js";
 import { registerPullCommand } from "./commands/pull.js";
 import { registerSyncCommand } from "./commands/sync.js";
+import { registerImportPRCommand } from "./commands/import-pr.js";
+import { registerExportPRCommand } from "./commands/export-pr.js";
 import { registerConfigCommand } from "./commands/config.js";
 import { formatError } from "./formatters/index.js";
 import { isInsideRepo } from "../git/index.js";
@@ -39,6 +41,8 @@ export function createProgram(): Command {
   registerPushCommand(program);
   registerPullCommand(program);
   registerSyncCommand(program);
+  registerImportPRCommand(program);
+  registerExportPRCommand(program);
   registerConfigCommand(program);
 
   return program;

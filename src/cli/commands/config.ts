@@ -6,7 +6,11 @@
 
 import { Command } from "commander";
 import type { XNotesConfig } from "../../utils/index.js";
-import { getConfigValue, setConfigValue, listConfig } from "../../utils/index.js";
+import {
+  getConfigValue,
+  setConfigValue,
+  listConfig,
+} from "../../utils/index.js";
 import { formatError, formatSuccess } from "../formatters/index.js";
 
 /**
@@ -72,7 +76,9 @@ export function registerConfigCommand(program: Command): void {
 
 async function executeConfigGet(key: string): Promise<void> {
   if (!VALID_KEYS.includes(key as keyof XNotesConfig)) {
-    throw new Error(`Invalid key: ${key}. Valid keys are: ${VALID_KEYS.join(", ")}`);
+    throw new Error(
+      `Invalid key: ${key}. Valid keys are: ${VALID_KEYS.join(", ")}`,
+    );
   }
 
   const value = await getConfigValue(key as keyof XNotesConfig);
@@ -89,11 +95,15 @@ async function executeConfigGet(key: string): Promise<void> {
 
 async function executeConfigSet(key: string, value: string): Promise<void> {
   if (!VALID_KEYS.includes(key as keyof XNotesConfig)) {
-    throw new Error(`Invalid key: ${key}. Valid keys are: ${VALID_KEYS.join(", ")}`);
+    throw new Error(
+      `Invalid key: ${key}. Valid keys are: ${VALID_KEYS.join(", ")}`,
+    );
   }
 
   if (key === "githubToken") {
-    throw new Error("githubToken must be set via GITHUB_TOKEN environment variable");
+    throw new Error(
+      "githubToken must be set via GITHUB_TOKEN environment variable",
+    );
   }
 
   // Convert value for boolean fields

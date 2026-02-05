@@ -38,6 +38,8 @@ git xnotes <command> [options] [arguments]
 | `push` | Push notes to remote |
 | `pull` | Pull notes from remote |
 | `sync` | Bidirectional GitHub PR sync |
+| `import-pr` | Import PR comments to empty commit (see [design-pr-import.md](./design-pr-import.md)) |
+| `export-pr` | Export xnotes comments to GitHub PR (see [design-pr-import.md](./design-pr-import.md)) |
 
 ### Configuration
 
@@ -217,6 +219,67 @@ git-xnotes sync [options] [<commit>]
 | `--pull` | boolean | false | Import PR comments to notes |
 | `--push` | boolean | false | Export notes to PR comments |
 | `--bidirectional` | boolean | true | Full two-way sync |
+
+---
+
+### import-pr
+
+Import PR comments to an empty commit anchor.
+
+```
+git-xnotes import-pr [options]
+```
+
+#### Options
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--pr` | number | auto-detect | GitHub PR number |
+| `--dry-run` | boolean | false | Preview without creating commit |
+| `--message` | string | auto | Custom commit message |
+| `--include-resolved` | boolean | true | Include resolved comments |
+| `--author` | string | git config | Author for import commit |
+
+#### Behavior
+
+1. Auto-detects PR from current branch (or uses `--pr`)
+2. Fetches all comments (general + inline code comments)
+3. Creates an empty commit as anchor
+4. Attaches all comments as git notes to the anchor commit
+
+See [design-pr-import.md](./design-pr-import.md) for detailed design.
+
+---
+
+### export-pr
+
+Export xnotes comments to GitHub PR.
+
+```
+git-xnotes export-pr [options]
+```
+
+#### Options
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--pr` | number | auto-detect | GitHub PR number |
+| `--dry-run` | boolean | false | Preview without posting |
+| `--yes`, `-y` | boolean | false | Skip review, export immediately |
+| `--skip-imported` | boolean | true | Skip comments imported from this PR |
+| `--update-source` | boolean | true | Update local note with GitHub comment ID |
+
+#### Behavior
+
+1. Auto-detects PR from current branch (or uses `--pr`)
+2. Computes diff range between PR base and current branch (`base..HEAD`)
+3. Reads all commits in the diff range and collects unexported comments
+4. **Review mode** (default): Shows comments and prompts for confirmation
+5. **Skip review mode** (`-y`): Exports immediately without confirmation
+6. Creates issue comments on GitHub PR
+7. Updates local notes with `source.commentId` for duplicate tracking
+
+See [design-pr-import.md](./design-pr-import.md) for detailed design.
 
 ---
 

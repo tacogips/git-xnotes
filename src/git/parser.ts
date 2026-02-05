@@ -38,10 +38,7 @@ export interface DiffStat {
  * @returns Array of ref names
  */
 export function parseRefList(output: string): string[] {
-  return output
-    .trim()
-    .split("\n")
-    .filter(Boolean);
+  return output.trim().split("\n").filter(Boolean);
 }
 
 /**
@@ -91,7 +88,7 @@ export function parseDiffStat(output: string): DiffStat {
 
     // Check for summary line (e.g., "2 files changed, 9 insertions(+), 6 deletions(-)")
     const summaryMatch = line.match(
-      /(\d+)\s+files?\s+changed(?:,\s+(\d+)\s+insertions?\(\+\))?(?:,\s+(\d+)\s+deletions?\(-\))?/
+      /(\d+)\s+files?\s+changed(?:,\s+(\d+)\s+insertions?\(\+\))?(?:,\s+(\d+)\s+deletions?\(-\))?/,
     );
     if (summaryMatch) {
       totalInsertions = parseInt(summaryMatch[2] ?? "0", 10);

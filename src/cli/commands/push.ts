@@ -5,7 +5,11 @@
  */
 
 import { Command } from "commander";
-import { pushNotes, ALL_REF_TYPES, type NotesRefType } from "../../notes/index.js";
+import {
+  pushNotes,
+  ALL_REF_TYPES,
+  type NotesRefType,
+} from "../../notes/index.js";
 import { formatError, formatSuccess } from "../formatters/index.js";
 
 /**
@@ -19,7 +23,10 @@ export function registerPushCommand(program: Command): void {
     .description("Push review notes to a remote repository")
     .argument("[remote]", "Remote name", "origin")
     .option("--all", "Push all notes refs", true)
-    .option("--ref <type>", "Push specific ref only (reviews, discuss, ci, analyses)")
+    .option(
+      "--ref <type>",
+      "Push specific ref only (reviews, discuss, ci, analyses)",
+    )
     .action(async (remote: string, options: PushOptions) => {
       try {
         await executePush(remote, options);
@@ -35,13 +42,16 @@ interface PushOptions {
   readonly ref?: string;
 }
 
-async function executePush(remote: string, options: PushOptions): Promise<void> {
+async function executePush(
+  remote: string,
+  options: PushOptions,
+): Promise<void> {
   // Determine which refs to push
   let refs: NotesRefType[];
   if (options.ref) {
     if (!isValidRefType(options.ref)) {
       throw new Error(
-        `Invalid ref type: ${options.ref}. Valid types: ${ALL_REF_TYPES.join(", ")}`
+        `Invalid ref type: ${options.ref}. Valid types: ${ALL_REF_TYPES.join(", ")}`,
       );
     }
     refs = [options.ref];

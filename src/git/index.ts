@@ -5,11 +5,7 @@
  */
 
 // Command execution
-export type {
-  GitCommandResult,
-  GitOptions,
-  CommitInfo,
-} from "./commands.js";
+export type { GitCommandResult, GitOptions, CommitInfo } from "./commands.js";
 export {
   exec,
   execOrThrow,
@@ -28,11 +24,7 @@ export {
 } from "./commands.js";
 
 // Parsing utilities
-export type {
-  RefInfo,
-  DiffFileStat,
-  DiffStat,
-} from "./parser.js";
+export type { RefInfo, DiffFileStat, DiffStat } from "./parser.js";
 export {
   parseRefList,
   parseRefInfo,

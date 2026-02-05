@@ -46,7 +46,7 @@ interface ShowOptions {
 
 async function executeShow(
   commitArg: string | undefined,
-  options: ShowOptions
+  options: ShowOptions,
 ): Promise<void> {
   // Resolve commit
   let commit: string;

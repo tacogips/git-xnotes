@@ -28,7 +28,9 @@ describe("XNotesError", () => {
   });
 
   test("toJSON returns proper structure", () => {
-    const error = new XNotesError("TEST_CODE", "Test message", { key: "value" });
+    const error = new XNotesError("TEST_CODE", "Test message", {
+      key: "value",
+    });
     const json = error.toJSON();
     expect(json).toEqual({
       code: "TEST_CODE",
@@ -151,16 +153,22 @@ describe("isXNotesError", () => {
 
 describe("isXNotesErrorWithCode", () => {
   test("returns true for matching code", () => {
-    expect(isXNotesErrorWithCode(new ValidationError("msg"), "VALIDATION_ERROR")).toBe(true);
+    expect(
+      isXNotesErrorWithCode(new ValidationError("msg"), "VALIDATION_ERROR"),
+    ).toBe(true);
     expect(isXNotesErrorWithCode(new GitError("msg"), "GIT_ERROR")).toBe(true);
   });
 
   test("returns false for non-matching code", () => {
-    expect(isXNotesErrorWithCode(new ValidationError("msg"), "GIT_ERROR")).toBe(false);
+    expect(isXNotesErrorWithCode(new ValidationError("msg"), "GIT_ERROR")).toBe(
+      false,
+    );
   });
 
   test("returns false for non-XNotesError", () => {
-    expect(isXNotesErrorWithCode(new Error("msg"), "VALIDATION_ERROR")).toBe(false);
+    expect(isXNotesErrorWithCode(new Error("msg"), "VALIDATION_ERROR")).toBe(
+      false,
+    );
   });
 });
 

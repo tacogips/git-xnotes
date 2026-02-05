@@ -1,10 +1,11 @@
 {
-  "lastUpdated": "2026-02-03T15:00:00Z",
+  "lastUpdated": "2026-02-04T00:00:00Z",
   "phases": {
     "1": { "status": "COMPLETED" },
     "2": { "status": "COMPLETED" },
     "3": { "status": "COMPLETED" },
-    "4": { "status": "COMPLETED" }
+    "4": { "status": "COMPLETED" },
+    "5": { "status": "COMPLETED" }
   },
   "plans": {
     "phase1-core-types": {
@@ -93,6 +94,21 @@
         "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["TASK-002"], "name": "CI Command", "file": "src/cli/commands/ci.ts" },
         "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["TASK-003"], "name": "Analysis Command", "file": "src/cli/commands/analysis.ts" },
         "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Config Command", "file": "src/cli/commands/config.ts" }
+      }
+    },
+    "pr-import-export": {
+      "phase": 5,
+      "status": "Completed",
+      "designRef": "design-docs/specs/design-pr-import.md",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Extended Comment Schema", "file": "src/types/comment.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": true, "deps": [], "name": "GitHub Client Extensions", "file": "src/github/client.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002"], "name": "PR Import Logic", "file": "src/github/import.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002"], "name": "PR Export Logic", "file": "src/github/export.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": true, "deps": ["TASK-001"], "name": "Note Update Functionality", "file": "src/notes/writer.ts" },
+        "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["TASK-003"], "name": "Import CLI Command", "file": "src/cli/commands/import-pr.ts" },
+        "TASK-007": { "status": "Completed", "parallelizable": false, "deps": ["TASK-004"], "name": "Export CLI Command", "file": "src/cli/commands/export-pr.ts" },
+        "TASK-008": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-003", "TASK-004"], "name": "Library API Integration", "file": "src/lib.ts" }
       }
     }
   }

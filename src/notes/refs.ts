@@ -24,9 +24,7 @@ export type NotesRefType = keyof typeof NOTES_REFS;
 /**
  * All valid notes reference types
  */
-export const ALL_REF_TYPES: readonly NotesRefType[] = [
-  "discuss",
-];
+export const ALL_REF_TYPES: readonly NotesRefType[] = ["discuss"];
 
 /**
  * Gets the full git ref for a notes type.
@@ -54,7 +52,10 @@ export function getAllNotesRefs(): string[] {
  * @param remote - Remote name (default: origin)
  * @returns Full remote ref path
  */
-export function getRemoteNotesRef(type: NotesRefType, remote = "origin"): string {
+export function getRemoteNotesRef(
+  type: NotesRefType,
+  remote = "origin",
+): string {
   return `${remote}/${NOTES_REFS[type]}`;
 }
 

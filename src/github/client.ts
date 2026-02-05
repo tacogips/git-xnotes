@@ -68,6 +68,35 @@ export interface PRComment {
 }
 
 /**
+ * Simplified PR comment for import/export (design spec interface)
+ *
+ * This interface is used by import/export modules.
+ */
+export interface ImportExportPRComment {
+  readonly id: number;
+  readonly type: "issue" | "review";
+  readonly author: string;
+  readonly body: string;
+  readonly createdAt: string;
+  /** File path for review comments */
+  readonly path?: string | undefined;
+  /** Line number for review comments */
+  readonly line?: number | undefined;
+}
+
+/**
+ * Simplified PR information for import/export (design spec interface)
+ *
+ * This interface is used by import/export modules.
+ */
+export interface SimplePR {
+  readonly number: number;
+  readonly title: string;
+  readonly base: string;
+  readonly head: string;
+}
+
+/**
  * GitHub API client wrapper
  */
 export class GitHubClient {
@@ -157,12 +186,13 @@ export class GitHubClient {
   async getPRComments(number: number): Promise<PRComment[]> {
     try {
       // Get review comments (inline comments on code)
-      const reviewCommentsResponse = await this.octokit.pulls.listReviewComments({
-        owner: this.owner,
-        repo: this.repo,
-        pull_number: number,
-        per_page: 100,
-      });
+      const reviewCommentsResponse =
+        await this.octokit.pulls.listReviewComments({
+          owner: this.owner,
+          repo: this.repo,
+          pull_number: number,
+          per_page: 100,
+        });
 
       // Get issue comments (general comments on the PR)
       const issueCommentsResponse = await this.octokit.issues.listComments({
@@ -172,30 +202,35 @@ export class GitHubClient {
         per_page: 100,
       });
 
-      const reviewComments: PRComment[] = reviewCommentsResponse.data.map((c) => ({
-        id: c.id,
-        body: c.body,
-        user: { login: c.user?.login ?? "unknown" },
-        createdAt: c.created_at,
-        updatedAt: c.updated_at,
-        path: c.path,
-        line: c.line ?? undefined,
-        originalLine: c.original_line ?? undefined,
-        side: c.side as "LEFT" | "RIGHT" | undefined,
-        commitId: c.commit_id,
-      }));
+      const reviewComments: PRComment[] = reviewCommentsResponse.data.map(
+        (c) => ({
+          id: c.id,
+          body: c.body,
+          user: { login: c.user?.login ?? "unknown" },
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+          path: c.path,
+          line: c.line ?? undefined,
+          originalLine: c.original_line ?? undefined,
+          side: c.side as "LEFT" | "RIGHT" | undefined,
+          commitId: c.commit_id,
+        }),
+      );
 
-      const issueComments: PRComment[] = issueCommentsResponse.data.map((c) => ({
-        id: c.id,
-        body: c.body ?? "",
-        user: { login: c.user?.login ?? "unknown" },
-        createdAt: c.created_at,
-        updatedAt: c.updated_at,
-      }));
+      const issueComments: PRComment[] = issueCommentsResponse.data.map(
+        (c) => ({
+          id: c.id,
+          body: c.body ?? "",
+          user: { login: c.user?.login ?? "unknown" },
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+        }),
+      );
 
       // Combine and sort by creation date
       return [...reviewComments, ...issueComments].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
     } catch (error) {
       throw this.wrapError(error, `Failed to get comments for PR #${number}`);
@@ -217,7 +252,7 @@ export class GitHubClient {
     body: string,
     path?: string,
     line?: number,
-    commitId?: string
+    commitId?: string,
   ): Promise<PRComment> {
     try {
       if (path && line && commitId) {
@@ -275,7 +310,7 @@ export class GitHubClient {
   async updatePRComment(
     commentId: number,
     body: string,
-    isReviewComment: boolean
+    isReviewComment: boolean,
   ): Promise<PRComment> {
     try {
       if (isReviewComment) {
@@ -354,7 +389,9 @@ export class GitHubClient {
 
   private wrapError(error: unknown, message: string): NetworkError {
     if (error instanceof Error) {
-      return new NetworkError(message, error, { originalMessage: error.message });
+      return new NetworkError(message, error, {
+        originalMessage: error.message,
+      });
     }
     return new NetworkError(message, undefined, { error });
   }
@@ -381,7 +418,9 @@ export function getConfigFromEnv(): Partial<GitHubConfig> {
  * @param cwd - Working directory
  * @returns Partial GitHub config with owner and repo
  */
-export async function getConfigFromGit(cwd?: string): Promise<Partial<GitHubConfig>> {
+export async function getConfigFromGit(
+  cwd?: string,
+): Promise<Partial<GitHubConfig>> {
   const result = await exec(["remote", "get-url", "origin"], { cwd });
 
   if (result.exitCode !== 0) {
@@ -415,7 +454,7 @@ export async function getConfigFromGit(cwd?: string): Promise<Partial<GitHubConf
  */
 export async function createClient(
   overrides?: Partial<GitHubConfig>,
-  cwd?: string
+  cwd?: string,
 ): Promise<GitHubClient> {
   const envConfig = getConfigFromEnv();
   const gitConfig = await getConfigFromGit(cwd);
@@ -427,11 +466,83 @@ export async function createClient(
   };
 
   if (!config.token) {
-    throw new Error("GitHub token is required. Set GITHUB_TOKEN environment variable.");
+    throw new Error(
+      "GitHub token is required. Set GITHUB_TOKEN environment variable.",
+    );
   }
   if (!config.owner || !config.repo) {
-    throw new Error("Could not determine repository owner/name. Ensure origin remote is set.");
+    throw new Error(
+      "Could not determine repository owner/name. Ensure origin remote is set.",
+    );
   }
 
   return new GitHubClient(config);
+}
+
+/**
+ * Fetch PR information.
+ *
+ * Standalone function variant for import/export modules.
+ *
+ * @param client - GitHub client instance
+ * @param prNumber - PR number
+ * @returns Simplified PR information
+ */
+export async function getPR(
+  client: GitHubClient,
+  prNumber: number,
+): Promise<SimplePR> {
+  const pr = await client.getPR(prNumber);
+
+  return {
+    number: pr.number,
+    title: pr.title,
+    base: pr.base.ref,
+    head: pr.head.ref,
+  };
+}
+
+/**
+ * Fetch all comments (issue + review) for a PR.
+ *
+ * Standalone function variant for import/export modules.
+ *
+ * @param client - GitHub client instance
+ * @param prNumber - PR number
+ * @returns Array of simplified PR comments
+ */
+export async function fetchPRComments(
+  client: GitHubClient,
+  prNumber: number,
+): Promise<ImportExportPRComment[]> {
+  const comments = await client.getPRComments(prNumber);
+
+  return comments.map((c) => ({
+    id: c.id,
+    type: c.path !== undefined ? ("review" as const) : ("issue" as const),
+    author: c.user.login,
+    body: c.body,
+    createdAt: c.createdAt,
+    path: c.path,
+    line: c.line,
+  }));
+}
+
+/**
+ * Create issue comment on PR.
+ *
+ * Standalone function variant for import/export modules.
+ *
+ * @param client - GitHub client instance
+ * @param prNumber - PR number
+ * @param body - Comment body
+ * @returns Created comment ID
+ */
+export async function createPRComment(
+  client: GitHubClient,
+  prNumber: number,
+  body: string,
+): Promise<{ id: number }> {
+  const comment = await client.createPRComment(prNumber, body);
+  return { id: comment.id };
 }

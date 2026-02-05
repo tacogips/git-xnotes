@@ -64,7 +64,9 @@ describe("validateComment", () => {
         range: { startLine: 10, endLine: 5 }, // end < start
       },
     };
-    expect(() => validateComment(invalid)).toThrow("endLine must be >= startLine");
+    expect(() => validateComment(invalid)).toThrow(
+      "endLine must be >= startLine",
+    );
   });
 });
 
@@ -125,7 +127,8 @@ describe("serializeComment", () => {
 
 describe("parseComment", () => {
   test("parses valid JSON line", () => {
-    const json = '{"timestamp":"1704067200","author":"alice@example.com","description":"Test","v":0}';
+    const json =
+      '{"timestamp":"1704067200","author":"alice@example.com","description":"Test","v":0}';
     const parsed = parseComment(json);
     expect(parsed.author).toBe("alice@example.com");
     expect(parsed.description).toBe("Test");
@@ -160,21 +163,53 @@ describe("findReplies", () => {
   test("finds direct replies to a comment", () => {
     const parentHash = "parent123";
     const comments: CommentWithHash[] = [
-      { timestamp: "1", author: "a@b.com", description: "Parent", v: 0, hash: parentHash },
-      { timestamp: "2", author: "c@d.com", description: "Reply 1", v: 0, hash: "reply1", parent: parentHash },
-      { timestamp: "3", author: "e@f.com", description: "Reply 2", v: 0, hash: "reply2", parent: parentHash },
-      { timestamp: "4", author: "g@h.com", description: "Other", v: 0, hash: "other" },
+      {
+        timestamp: "1",
+        author: "a@b.com",
+        description: "Parent",
+        v: 0,
+        hash: parentHash,
+      },
+      {
+        timestamp: "2",
+        author: "c@d.com",
+        description: "Reply 1",
+        v: 0,
+        hash: "reply1",
+        parent: parentHash,
+      },
+      {
+        timestamp: "3",
+        author: "e@f.com",
+        description: "Reply 2",
+        v: 0,
+        hash: "reply2",
+        parent: parentHash,
+      },
+      {
+        timestamp: "4",
+        author: "g@h.com",
+        description: "Other",
+        v: 0,
+        hash: "other",
+      },
     ];
 
     const replies = findReplies(comments, parentHash);
     expect(replies).toHaveLength(2);
-    expect(replies.map(r => r.hash)).toContain("reply1");
-    expect(replies.map(r => r.hash)).toContain("reply2");
+    expect(replies.map((r) => r.hash)).toContain("reply1");
+    expect(replies.map((r) => r.hash)).toContain("reply2");
   });
 
   test("returns empty array when no replies", () => {
     const comments: CommentWithHash[] = [
-      { timestamp: "1", author: "a@b.com", description: "Comment", v: 0, hash: "abc" },
+      {
+        timestamp: "1",
+        author: "a@b.com",
+        description: "Comment",
+        v: 0,
+        hash: "abc",
+      },
     ];
     expect(findReplies(comments, "abc")).toHaveLength(0);
   });
@@ -183,8 +218,21 @@ describe("findReplies", () => {
 describe("buildCommentTree", () => {
   test("builds tree with replies", () => {
     const comments: CommentWithHash[] = [
-      { timestamp: "1", author: "a@b.com", description: "Root", v: 0, hash: "root" },
-      { timestamp: "2", author: "c@d.com", description: "Reply", v: 0, hash: "reply", parent: "root" },
+      {
+        timestamp: "1",
+        author: "a@b.com",
+        description: "Root",
+        v: 0,
+        hash: "root",
+      },
+      {
+        timestamp: "2",
+        author: "c@d.com",
+        description: "Reply",
+        v: 0,
+        hash: "reply",
+        parent: "root",
+      },
     ];
 
     const tree = buildCommentTree(comments, "root");
@@ -203,7 +251,13 @@ describe("buildCommentTree", () => {
 describe("getLatestVersion", () => {
   test("returns original when no edits", () => {
     const comments: CommentWithHash[] = [
-      { timestamp: "1", author: "a@b.com", description: "Original", v: 0, hash: "original" },
+      {
+        timestamp: "1",
+        author: "a@b.com",
+        description: "Original",
+        v: 0,
+        hash: "original",
+      },
     ];
 
     const latest = getLatestVersion(comments, "original");
@@ -212,9 +266,29 @@ describe("getLatestVersion", () => {
 
   test("returns latest in edit chain", () => {
     const comments: CommentWithHash[] = [
-      { timestamp: "1", author: "a@b.com", description: "Original", v: 0, hash: "v1" },
-      { timestamp: "2", author: "a@b.com", description: "Edit 1", v: 0, hash: "v2", original: "v1" },
-      { timestamp: "3", author: "a@b.com", description: "Edit 2", v: 0, hash: "v3", original: "v2" },
+      {
+        timestamp: "1",
+        author: "a@b.com",
+        description: "Original",
+        v: 0,
+        hash: "v1",
+      },
+      {
+        timestamp: "2",
+        author: "a@b.com",
+        description: "Edit 1",
+        v: 0,
+        hash: "v2",
+        original: "v1",
+      },
+      {
+        timestamp: "3",
+        author: "a@b.com",
+        description: "Edit 2",
+        v: 0,
+        hash: "v3",
+        original: "v2",
+      },
     ];
 
     const latest = getLatestVersion(comments, "v1");

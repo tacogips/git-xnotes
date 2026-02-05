@@ -30,7 +30,7 @@ export interface CommitListItem {
  */
 export function formatCommitList(
   items: readonly CommitListItem[],
-  format: OutputFormat
+  format: OutputFormat,
 ): string {
   switch (format) {
     case "json":
@@ -38,8 +38,9 @@ export function formatCommitList(
 
     case "oneline":
       return items
-        .map((item) =>
-          `${item.commit.substring(0, 7)} ${item.commentCount} comments ${item.latestAuthor} ${item.latestDate}`
+        .map(
+          (item) =>
+            `${item.commit.substring(0, 7)} ${item.commentCount} comments ${item.latestAuthor} ${item.latestDate}`,
         )
         .join("\n");
 
@@ -52,7 +53,7 @@ export function formatCommitList(
           truncate(item.latestAuthor, 25),
           item.latestDate,
         ]),
-        ["COMMIT", "COMMENTS", "LATEST AUTHOR", "DATE"]
+        ["COMMIT", "COMMENTS", "LATEST AUTHOR", "DATE"],
       );
   }
 }
@@ -66,7 +67,7 @@ export function formatCommitList(
  */
 export function formatTable(
   rows: readonly (readonly string[])[],
-  headers: readonly string[]
+  headers: readonly string[],
 ): string {
   if (rows.length === 0) {
     return headers.join("  ");
@@ -85,7 +86,7 @@ export function formatTable(
 
   // Format rows
   const rowLines = rows.map((row) =>
-    row.map((cell, i) => cell.padEnd(widths[i] ?? 0)).join("  ")
+    row.map((cell, i) => cell.padEnd(widths[i] ?? 0)).join("  "),
   );
 
   return [headerLine, ...rowLines].join("\n");
@@ -116,7 +117,7 @@ export function truncate(str: string, maxLen: number): string {
 export function formatCommitComments(
   commit: string,
   comments: readonly CommentTree[],
-  format: OutputFormat
+  format: OutputFormat,
 ): string {
   switch (format) {
     case "json":
@@ -205,8 +206,5 @@ export function formatSuccess(message: string): string {
  * @returns true if colors should be used
  */
 export function shouldUseColors(): boolean {
-  return (
-    process.env["NO_COLOR"] === undefined &&
-    process.stdout.isTTY === true
-  );
+  return process.env["NO_COLOR"] === undefined && process.stdout.isTTY === true;
 }
