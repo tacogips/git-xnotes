@@ -34,6 +34,7 @@ impl-plans/
 | phase1-notes-layer | Completed | notes.md | 2026-02-01 |
 | phase1-cli-basic | Completed | command.md | 2026-02-01 |
 | phase3-github | Completed | architecture.md#github-integration | 2026-02-03 |
+| pr-import-export | Completed | design-pr-import.md | 2026-02-04 |
 
 ## Archived Plans
 

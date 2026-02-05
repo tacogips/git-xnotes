@@ -97,7 +97,9 @@ function extractSyncMarker(body: string): string | null {
  */
 export function mapPRCommentToComment(prComment: PRComment): Comment {
   // Parse the timestamp from createdAt
-  const timestamp = Math.floor(new Date(prComment.createdAt).getTime() / 1000).toString();
+  const timestamp = Math.floor(
+    new Date(prComment.createdAt).getTime() / 1000,
+  ).toString();
 
   // Create base comment
   const comment: Comment = createComment({
@@ -152,7 +154,7 @@ export function mapCommentToPRBody(comment: Comment, hash: string): string {
 export async function pullComments(
   client: GitHubClient,
   mapping: PRMapping,
-  options?: SyncOptions
+  options?: SyncOptions,
 ): Promise<SyncResult> {
   // Get existing local comments
   const localComments = await readComments(mapping.commit, options);
@@ -179,7 +181,7 @@ export async function pullComments(
     const existingLocal = localWithHashes.find(
       (local) =>
         local.description === remoteComment.body &&
-        local.author.includes(remoteComment.user.login)
+        local.author.includes(remoteComment.user.login),
     );
 
     if (existingLocal) {
@@ -207,7 +209,7 @@ export async function pullComments(
 export async function pushComments(
   client: GitHubClient,
   mapping: PRMapping,
-  options?: SyncOptions
+  options?: SyncOptions,
 ): Promise<SyncResult> {
   // Get local comments
   const localComments = await readComments(mapping.commit, options);
@@ -253,7 +255,7 @@ export async function pushComments(
         body,
         local.location.path,
         local.location.range?.startLine,
-        local.location.commit
+        local.location.commit,
       );
     } else {
       // General comment
@@ -277,7 +279,7 @@ export async function pushComments(
 export async function syncComments(
   client: GitHubClient,
   mapping: PRMapping,
-  options?: SyncOptions
+  options?: SyncOptions,
 ): Promise<SyncResult> {
   // First pull to get any new comments from GitHub
   const pullResult = await pullComments(client, mapping, options);
@@ -301,7 +303,7 @@ export async function syncComments(
  */
 export function detectConflicts(
   local: readonly CommentWithHash[],
-  remote: readonly PRComment[]
+  remote: readonly PRComment[],
 ): SyncConflict[] {
   const conflicts: SyncConflict[] = [];
 
@@ -352,7 +354,7 @@ export async function autoSync(
   client: GitHubClient,
   mapping: PRMapping,
   mode: "pull" | "push" | "bidirectional" = "bidirectional",
-  options?: SyncOptions
+  options?: SyncOptions,
 ): Promise<SyncResult> {
   // Perform sync based on mode
   switch (mode) {

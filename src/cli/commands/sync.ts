@@ -6,7 +6,12 @@
 
 import { Command } from "commander";
 import { getHeadCommit, resolveRef } from "../../git/index.js";
-import { createClient, autoSync, type SyncResult, type PRMapping } from "../../github/index.js";
+import {
+  createClient,
+  autoSync,
+  type SyncResult,
+  type PRMapping,
+} from "../../github/index.js";
 import { formatError, formatSuccess } from "../formatters/index.js";
 
 /**
@@ -40,7 +45,10 @@ interface SyncOptions {
   readonly bidirectional?: boolean | undefined;
 }
 
-async function executeSync(commitArg: string | undefined, options: SyncOptions): Promise<void> {
+async function executeSync(
+  commitArg: string | undefined,
+  options: SyncOptions,
+): Promise<void> {
   // Resolve commit
   let commit: string;
   if (commitArg) {
@@ -76,12 +84,18 @@ async function executeSync(commitArg: string | undefined, options: SyncOptions):
 function reportSyncResult(
   result: SyncResult,
   mode: "pull" | "push" | "bidirectional",
-  prNumber: number
+  prNumber: number,
 ): void {
   const prDisplay = `PR #${prNumber}`;
 
-  if (result.imported === 0 && result.exported === 0 && result.conflicts.length === 0) {
-    console.log(formatSuccess(`Sync complete for ${prDisplay}: already in sync`));
+  if (
+    result.imported === 0 &&
+    result.exported === 0 &&
+    result.conflicts.length === 0
+  ) {
+    console.log(
+      formatSuccess(`Sync complete for ${prDisplay}: already in sync`),
+    );
     return;
   }
 

@@ -88,7 +88,7 @@ export class GitError extends XNotesError {
       exitCode?: number;
       stderr?: string;
       details?: unknown;
-    }
+    },
   ) {
     super("GIT_ERROR", message, options?.details);
     this.name = "GitError";
@@ -159,7 +159,7 @@ export class StateError extends XNotesError {
       currentState?: string;
       requiredState?: string;
       details?: unknown;
-    }
+    },
   ) {
     super("STATE_ERROR", message, options?.details);
     this.name = "StateError";
@@ -187,7 +187,7 @@ export function isXNotesError(error: unknown): error is XNotesError {
  */
 export function isXNotesErrorWithCode(
   error: unknown,
-  code: string
+  code: string,
 ): error is XNotesError {
   return isXNotesError(error) && error.code === code;
 }
@@ -201,7 +201,7 @@ export function isXNotesErrorWithCode(
  */
 export function wrapError(
   error: unknown,
-  defaultMessage = "An unknown error occurred"
+  defaultMessage = "An unknown error occurred",
 ): XNotesError {
   if (isXNotesError(error)) {
     return error;

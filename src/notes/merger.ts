@@ -29,7 +29,7 @@ export const MERGE_STRATEGY = "cat_sort_uniq";
  */
 export async function configureMergeStrategy(
   ref: NotesRefType,
-  options?: MergeNotesOptions
+  options?: MergeNotesOptions,
 ): Promise<void> {
   const notesRef = getNotesRef(ref);
   // Extract the relative ref path (e.g., "xnotes/reviews")
@@ -37,7 +37,7 @@ export async function configureMergeStrategy(
 
   await execOrThrow(
     ["config", `notes.${refPath}.mergeStrategy`, MERGE_STRATEGY],
-    { cwd: options?.cwd }
+    { cwd: options?.cwd },
   );
 }
 
@@ -47,7 +47,7 @@ export async function configureMergeStrategy(
  * @param options - Merge options
  */
 export async function configureAllMergeStrategies(
-  options?: MergeNotesOptions
+  options?: MergeNotesOptions,
 ): Promise<void> {
   for (const ref of ALL_REF_TYPES) {
     await configureMergeStrategy(ref, options);
@@ -64,16 +64,15 @@ export async function configureAllMergeStrategies(
 export async function mergeNotes(
   ref: NotesRefType,
   remote: string,
-  options?: MergeNotesOptions
+  options?: MergeNotesOptions,
 ): Promise<void> {
   const notesRef = getNotesRef(ref);
   const remoteRef = `${remote}/${notesRef}`;
 
   // First check if remote ref exists
-  const result = await exec(
-    ["rev-parse", "--verify", remoteRef],
-    { cwd: options?.cwd }
-  );
+  const result = await exec(["rev-parse", "--verify", remoteRef], {
+    cwd: options?.cwd,
+  });
 
   if (result.exitCode !== 0) {
     // Remote ref doesn't exist, nothing to merge
@@ -81,10 +80,9 @@ export async function mergeNotes(
   }
 
   // Merge the remote notes
-  await execOrThrow(
-    ["notes", `--ref=${notesRef}`, "merge", remoteRef],
-    { cwd: options?.cwd }
-  );
+  await execOrThrow(["notes", `--ref=${notesRef}`, "merge", remoteRef], {
+    cwd: options?.cwd,
+  });
 }
 
 /**
@@ -96,14 +94,14 @@ export async function mergeNotes(
  */
 export async function isMergeStrategyConfigured(
   ref: NotesRefType,
-  options?: MergeNotesOptions
+  options?: MergeNotesOptions,
 ): Promise<boolean> {
   const notesRef = getNotesRef(ref);
   const refPath = notesRef.replace("refs/notes/", "");
 
   const result = await exec(
     ["config", "--get", `notes.${refPath}.mergeStrategy`],
-    { cwd: options?.cwd }
+    { cwd: options?.cwd },
   );
 
   return result.exitCode === 0 && result.stdout.trim() === MERGE_STRATEGY;
@@ -116,7 +114,7 @@ export async function isMergeStrategyConfigured(
  * @param options - Merge options
  */
 export async function ensureMergeStrategiesConfigured(
-  options?: MergeNotesOptions
+  options?: MergeNotesOptions,
 ): Promise<void> {
   for (const ref of ALL_REF_TYPES) {
     const configured = await isMergeStrategyConfigured(ref, options);

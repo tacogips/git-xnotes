@@ -96,29 +96,40 @@ export function getEnvConfig(): Partial<XNotesConfig> {
  * @param options - Config options
  * @returns Partial configuration from git config
  */
-export async function getGitConfig(options?: ConfigOptions): Promise<Partial<XNotesConfig>> {
+export async function getGitConfig(
+  options?: ConfigOptions,
+): Promise<Partial<XNotesConfig>> {
   const config: MutableConfig = {};
 
   // Get user
-  const userResult = await exec(["config", "--get", `${GIT_CONFIG_PREFIX}.user`], {
-    cwd: options?.cwd,
-  });
+  const userResult = await exec(
+    ["config", "--get", `${GIT_CONFIG_PREFIX}.user`],
+    {
+      cwd: options?.cwd,
+    },
+  );
   if (userResult.exitCode === 0 && userResult.stdout.trim()) {
     config.user = userResult.stdout.trim();
   }
 
   // Get notesRefPrefix
-  const refPrefixResult = await exec(["config", "--get", `${GIT_CONFIG_PREFIX}.notesRefPrefix`], {
-    cwd: options?.cwd,
-  });
+  const refPrefixResult = await exec(
+    ["config", "--get", `${GIT_CONFIG_PREFIX}.notesRefPrefix`],
+    {
+      cwd: options?.cwd,
+    },
+  );
   if (refPrefixResult.exitCode === 0 && refPrefixResult.stdout.trim()) {
     config.notesRefPrefix = refPrefixResult.stdout.trim();
   }
 
   // Get debug
-  const debugResult = await exec(["config", "--get", `${GIT_CONFIG_PREFIX}.debug`], {
-    cwd: options?.cwd,
-  });
+  const debugResult = await exec(
+    ["config", "--get", `${GIT_CONFIG_PREFIX}.debug`],
+    {
+      cwd: options?.cwd,
+    },
+  );
   if (debugResult.exitCode === 0 && debugResult.stdout.trim()) {
     const value = debugResult.stdout.trim();
     config.debug = value === "true" || value === "1";
@@ -172,7 +183,9 @@ export function mergeConfig(...configs: Partial<XNotesConfig>[]): XNotesConfig {
  * @param options - Config options
  * @returns Complete configuration
  */
-export async function loadConfig(options?: ConfigOptions): Promise<XNotesConfig> {
+export async function loadConfig(
+  options?: ConfigOptions,
+): Promise<XNotesConfig> {
   const gitConfig = await getGitConfig(options);
   const envConfig = getEnvConfig();
 
@@ -187,7 +200,7 @@ export async function loadConfig(options?: ConfigOptions): Promise<XNotesConfig>
  */
 export async function saveConfig(
   config: Partial<XNotesConfig>,
-  options?: ConfigOptions
+  options?: ConfigOptions,
 ): Promise<void> {
   if (config.user !== undefined) {
     await exec(["config", `${GIT_CONFIG_PREFIX}.user`, config.user], {
@@ -196,15 +209,21 @@ export async function saveConfig(
   }
 
   if (config.notesRefPrefix !== undefined) {
-    await exec(["config", `${GIT_CONFIG_PREFIX}.notesRefPrefix`, config.notesRefPrefix], {
-      cwd: options?.cwd,
-    });
+    await exec(
+      ["config", `${GIT_CONFIG_PREFIX}.notesRefPrefix`, config.notesRefPrefix],
+      {
+        cwd: options?.cwd,
+      },
+    );
   }
 
   if (config.debug !== undefined) {
-    await exec(["config", `${GIT_CONFIG_PREFIX}.debug`, config.debug ? "true" : "false"], {
-      cwd: options?.cwd,
-    });
+    await exec(
+      ["config", `${GIT_CONFIG_PREFIX}.debug`, config.debug ? "true" : "false"],
+      {
+        cwd: options?.cwd,
+      },
+    );
   }
 
   // Note: githubToken is not saved to git config for security reasons
@@ -220,7 +239,7 @@ export async function saveConfig(
  */
 export async function getConfigValue(
   key: keyof XNotesConfig,
-  options?: ConfigOptions
+  options?: ConfigOptions,
 ): Promise<string | boolean | undefined> {
   const config = await loadConfig(options);
   return config[key];
@@ -236,7 +255,7 @@ export async function getConfigValue(
 export async function setConfigValue(
   key: keyof XNotesConfig,
   value: string | boolean,
-  options?: ConfigOptions
+  options?: ConfigOptions,
 ): Promise<void> {
   const partial: MutableConfig = {};
 
@@ -260,7 +279,9 @@ export async function setConfigValue(
       break;
     case "githubToken":
       // Cannot set via git config
-      throw new Error("githubToken must be set via GITHUB_TOKEN environment variable");
+      throw new Error(
+        "githubToken must be set via GITHUB_TOKEN environment variable",
+      );
   }
 
   await saveConfig(partial, options);
@@ -273,7 +294,7 @@ export async function setConfigValue(
  * @returns Record of all configuration values
  */
 export async function listConfig(
-  options?: ConfigOptions
+  options?: ConfigOptions,
 ): Promise<Record<string, string | boolean | undefined>> {
   const config = await loadConfig(options);
 

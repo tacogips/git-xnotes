@@ -60,7 +60,8 @@ interface Comment {
   original?: string;        // SHA1 hash of original comment (for edits)
   resolved?: boolean;       // true = thread resolved
   location?: CommentLocation;
-  v: number;                // Schema version (currently 0)
+  source?: CommentSource;   // External source tracking (v: 1)
+  v: number;                // Schema version (0 or 1)
 }
 
 interface CommentLocation {
@@ -75,9 +76,30 @@ interface LineRange {
   endLine: number;
   endColumn?: number;
 }
+
+interface CommentSource {
+  provider: "github";       // External provider
+  prNumber: number;         // PR number
+  commentId: number;        // GitHub comment ID (unique identifier)
+  commentType: "issue" | "review";  // Type of GitHub comment
+  importedAt?: string;      // Timestamp when imported from GitHub
+  exportedAt?: string;      // Timestamp when exported to GitHub
+}
 ```
 
 **Required fields**: `timestamp`, `author`, `description`, `v`
+
+### Schema Versions
+
+| Version | Description |
+|---------|-------------|
+| 0 | Original schema without source tracking |
+| 1 | Adds optional `source` field for GitHub integration |
+
+**Backward Compatibility:**
+- v:0 comments remain valid (no source field)
+- v:1 required when `source` field is present
+- Readers must accept both versions
 
 ### Comment Identity
 
@@ -243,13 +265,19 @@ function getLatestVersion(comments: Comment[], hash: string): Comment {
 1. `timestamp` must be valid Unix timestamp
 2. `author` must be valid email format
 3. `description` must be non-empty
-4. `v` must be `0` (current version)
-5. If `parent` is set, referenced comment must exist
-6. If `original` is set, referenced comment must exist
-7. If `location` is set:
+4. `v` must be `0` or `1`
+5. If `v` is `1` and `source` is present, source must be valid
+6. If `parent` is set, referenced comment must exist
+7. If `original` is set, referenced comment must exist
+8. If `location` is set:
    - `commit` must be valid commit hash
    - `path` must be non-empty
    - `range.startLine` <= `range.endLine`
+9. If `source` is set:
+   - `provider` must be `"github"`
+   - `prNumber` must be positive integer
+   - `commentId` must be positive integer
+   - `commentType` must be `"issue"` or `"review"`
 
 ---
 

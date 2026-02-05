@@ -5,7 +5,12 @@
  */
 
 import { exec, execOrThrow } from "../git/commands.js";
-import { type NotesRefType, getNotesRef, ALL_REF_TYPES, NOTES_REF_PREFIX } from "./refs.js";
+import {
+  type NotesRefType,
+  getNotesRef,
+  ALL_REF_TYPES,
+  NOTES_REF_PREFIX,
+} from "./refs.js";
 import { mergeNotes, ensureMergeStrategiesConfigured } from "./merger.js";
 
 /**
@@ -39,7 +44,7 @@ export interface SyncResult {
  * @returns Sync result
  */
 export async function pushNotes(
-  options?: SyncNotesOptions
+  options?: SyncNotesOptions,
 ): Promise<SyncResult> {
   const remote = options?.remote ?? "origin";
   const refs = options?.refs ?? ALL_REF_TYPES;
@@ -52,10 +57,9 @@ export async function pushNotes(
     const notesRef = getNotesRef(ref);
 
     // Check if ref exists locally
-    const existsResult = await exec(
-      ["rev-parse", "--verify", notesRef],
-      { cwd: options?.cwd }
-    );
+    const existsResult = await exec(["rev-parse", "--verify", notesRef], {
+      cwd: options?.cwd,
+    });
 
     if (existsResult.exitCode !== 0) {
       // Ref doesn't exist locally, skip
@@ -63,10 +67,9 @@ export async function pushNotes(
     }
 
     // Push the ref
-    const result = await exec(
-      ["push", remote, `${notesRef}:${notesRef}`],
-      { cwd: options?.cwd }
-    );
+    const result = await exec(["push", remote, `${notesRef}:${notesRef}`], {
+      cwd: options?.cwd,
+    });
 
     if (result.exitCode === 0) {
       syncedRefs.push(ref);
@@ -86,7 +89,7 @@ export async function pushNotes(
  * @returns Sync result
  */
 export async function fetchNotes(
-  options?: SyncNotesOptions
+  options?: SyncNotesOptions,
 ): Promise<SyncResult> {
   const remote = options?.remote ?? "origin";
   const refs = options?.refs ?? ALL_REF_TYPES;
@@ -100,10 +103,9 @@ export async function fetchNotes(
     const remoteRef = `${remote}/${notesRef}`;
 
     // Fetch the ref
-    const result = await exec(
-      ["fetch", remote, `${notesRef}:${remoteRef}`],
-      { cwd: options?.cwd }
-    );
+    const result = await exec(["fetch", remote, `${notesRef}:${remoteRef}`], {
+      cwd: options?.cwd,
+    });
 
     if (result.exitCode === 0) {
       syncedRefs.push(ref);
@@ -127,7 +129,7 @@ export async function fetchNotes(
  * @returns Sync result
  */
 export async function pullNotes(
-  options?: SyncNotesOptions
+  options?: SyncNotesOptions,
 ): Promise<SyncResult> {
   const remote = options?.remote ?? "origin";
 
@@ -161,14 +163,12 @@ export async function pullNotes(
  *
  * @param options - Sync options
  */
-export async function pushAllNotes(
-  options?: SyncNotesOptions
-): Promise<void> {
+export async function pushAllNotes(options?: SyncNotesOptions): Promise<void> {
   const remote = options?.remote ?? "origin";
 
   await execOrThrow(
     ["push", remote, `${NOTES_REF_PREFIX}/*:${NOTES_REF_PREFIX}/*`],
-    { cwd: options?.cwd }
+    { cwd: options?.cwd },
   );
 }
 
@@ -177,13 +177,11 @@ export async function pushAllNotes(
  *
  * @param options - Sync options
  */
-export async function fetchAllNotes(
-  options?: SyncNotesOptions
-): Promise<void> {
+export async function fetchAllNotes(options?: SyncNotesOptions): Promise<void> {
   const remote = options?.remote ?? "origin";
 
   await execOrThrow(
     ["fetch", remote, `${NOTES_REF_PREFIX}/*:${remote}/${NOTES_REF_PREFIX}/*`],
-    { cwd: options?.cwd }
+    { cwd: options?.cwd },
   );
 }

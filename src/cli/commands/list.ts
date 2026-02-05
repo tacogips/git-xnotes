@@ -26,7 +26,7 @@ export function registerListCommand(program: Command): void {
     .option(
       "-f, --format <type>",
       "Output format: table, json, oneline",
-      "table"
+      "table",
     )
     .action(async (options: ListOptions) => {
       try {
@@ -64,8 +64,8 @@ async function executeList(options: ListOptions): Promise<void> {
     }
 
     // Find the latest comment by timestamp
-    const sortedComments = [...filteredComments].sort((a, b) =>
-      parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10)
+    const sortedComments = [...filteredComments].sort(
+      (a, b) => parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10),
     );
     const latest = sortedComments[0];
     if (!latest) continue;

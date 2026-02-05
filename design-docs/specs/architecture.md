@@ -198,6 +198,24 @@ GitHub PR <---> git-xnotes
 | `push` | Export git notes comments to PR |
 | `bidirectional` | Full two-way sync |
 
+### Import Mode (Empty Commit Anchor)
+
+A separate import operation creates an empty commit as an anchor for PR comments:
+
+```
+GitHub PR -----> Empty Commit (anchor)
+   |                  |
+   |-- Comments ----->|  (snapshot import)
+```
+
+This differs from sync modes:
+- Creates a new empty commit for each import
+- All comments attached to the anchor commit (not original commits)
+- Provides persistent snapshot of PR discussions
+- Comments travel with repository via git notes
+
+See [design-pr-import.md](./design-pr-import.md) for detailed design.
+
 ---
 
 ## Error Handling

@@ -23,7 +23,25 @@ export interface CommentLocation {
   /** File path */
   readonly path: string;
   /** Line range (optional) */
-  readonly range?: LineRange;
+  readonly range?: LineRange | undefined;
+}
+
+/**
+ * Comment source tracking for external providers (schema v1)
+ */
+export interface CommentSource {
+  /** Provider name */
+  readonly provider: "github";
+  /** PR number */
+  readonly prNumber: number;
+  /** GitHub comment ID (unique identifier) */
+  readonly commentId: number;
+  /** Comment type on GitHub */
+  readonly commentType: "issue" | "review";
+  /** When this comment was imported from GitHub */
+  readonly importedAt?: string | undefined;
+  /** When this comment was exported to GitHub */
+  readonly exportedAt?: string | undefined;
 }
 
 /**
@@ -45,7 +63,9 @@ export interface Comment {
   readonly resolved?: boolean | undefined;
   /** Inline comment location */
   readonly location?: CommentLocation | undefined;
-  /** Schema version (currently 0) */
+  /** Comment source tracking (schema v1) */
+  readonly source?: CommentSource | undefined;
+  /** Schema version (0 or 1) */
   readonly v: number;
 }
 
@@ -71,9 +91,14 @@ export interface CommentTree {
 const REQUIRED_FIELDS = ["timestamp", "author", "description", "v"] as const;
 
 /**
- * Current schema version
+ * Current schema version for new comments (without source)
  */
 export const COMMENT_SCHEMA_VERSION = 0;
+
+/**
+ * Supported schema versions
+ */
+const SUPPORTED_VERSIONS = [0, 1] as const;
 
 /**
  * Validates a LineRange object.
@@ -100,10 +125,7 @@ function validateLineRange(data: unknown): LineRange {
     throw new Error("endLine must be >= startLine");
   }
 
-  if (
-    "startColumn" in obj &&
-    typeof obj["startColumn"] !== "number"
-  ) {
+  if ("startColumn" in obj && typeof obj["startColumn"] !== "number") {
     throw new Error("startColumn must be a number");
   }
 
@@ -143,6 +165,54 @@ function validateCommentLocation(data: unknown): CommentLocation {
 }
 
 /**
+ * Validates a CommentSource object.
+ *
+ * @param data - Unknown data to validate
+ * @returns Validated CommentSource
+ */
+function validateCommentSource(data: unknown): CommentSource {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("CommentSource must be an object");
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  if (obj["provider"] !== "github") {
+    throw new Error("source.provider must be 'github'");
+  }
+
+  if (typeof obj["prNumber"] !== "number" || obj["prNumber"] < 1) {
+    throw new Error("source.prNumber must be a positive number");
+  }
+
+  if (typeof obj["commentId"] !== "number" || obj["commentId"] < 1) {
+    throw new Error("source.commentId must be a positive number");
+  }
+
+  if (obj["commentType"] !== "issue" && obj["commentType"] !== "review") {
+    throw new Error("source.commentType must be 'issue' or 'review'");
+  }
+
+  if (
+    "importedAt" in obj &&
+    obj["importedAt"] !== undefined &&
+    typeof obj["importedAt"] !== "string"
+  ) {
+    throw new Error("source.importedAt must be a string");
+  }
+
+  if (
+    "exportedAt" in obj &&
+    obj["exportedAt"] !== undefined &&
+    typeof obj["exportedAt"] !== "string"
+  ) {
+    throw new Error("source.exportedAt must be a string");
+  }
+
+  return obj as unknown as CommentSource;
+}
+
+/**
  * Validates that the given data is a valid Comment.
  *
  * @param data - Unknown data to validate
@@ -178,13 +248,19 @@ export function validateComment(data: unknown): Comment {
   }
 
   // Validate description
-  if (typeof obj["description"] !== "string" || obj["description"].length === 0) {
+  if (
+    typeof obj["description"] !== "string" ||
+    obj["description"].length === 0
+  ) {
     throw new Error("description must be a non-empty string");
   }
 
-  // Validate version
-  if (typeof obj["v"] !== "number" || obj["v"] !== COMMENT_SCHEMA_VERSION) {
-    throw new Error(`v must be ${COMMENT_SCHEMA_VERSION}`);
+  // Validate version (support both v0 and v1)
+  if (typeof obj["v"] !== "number") {
+    throw new Error("v must be a number");
+  }
+  if (!SUPPORTED_VERSIONS.includes(obj["v"] as 0 | 1)) {
+    throw new Error(`v must be one of: ${SUPPORTED_VERSIONS.join(", ")}`);
   }
 
   // Validate optional fields
@@ -202,6 +278,10 @@ export function validateComment(data: unknown): Comment {
 
   if ("location" in obj && obj["location"] !== undefined) {
     validateCommentLocation(obj["location"]);
+  }
+
+  if ("source" in obj && obj["source"] !== undefined) {
+    validateCommentSource(obj["source"]);
   }
 
   return obj as unknown as Comment;
@@ -292,7 +372,7 @@ export function getMonotonicCommentTimestamp(): string {
  * @returns New Comment
  */
 export function createComment(
-  params: Omit<Comment, "timestamp" | "v">
+  params: Omit<Comment, "timestamp" | "v">,
 ): Comment {
   return {
     ...params,
@@ -310,7 +390,7 @@ export function createComment(
  */
 export function findReplies(
   comments: readonly CommentWithHash[],
-  parentHash: string
+  parentHash: string,
 ): CommentWithHash[] {
   return comments.filter((c) => c.parent === parentHash);
 }
@@ -324,7 +404,7 @@ export function findReplies(
  */
 export function buildCommentTree(
   comments: readonly CommentWithHash[],
-  rootHash: string
+  rootHash: string,
 ): CommentTree | null {
   const root = comments.find((c) => c.hash === rootHash);
   if (!root) {
@@ -349,7 +429,7 @@ export function buildCommentTree(
  */
 export function getLatestVersion(
   comments: readonly CommentWithHash[],
-  hash: string
+  hash: string,
 ): CommentWithHash | null {
   const edits = comments.filter((c) => c.original === hash);
   if (edits.length === 0) {

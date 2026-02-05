@@ -5,7 +5,11 @@
  */
 
 import { Command } from "commander";
-import { pullNotes, ALL_REF_TYPES, type NotesRefType } from "../../notes/index.js";
+import {
+  pullNotes,
+  ALL_REF_TYPES,
+  type NotesRefType,
+} from "../../notes/index.js";
 import { formatError, formatSuccess } from "../formatters/index.js";
 
 /**
@@ -19,7 +23,10 @@ export function registerPullCommand(program: Command): void {
     .description("Pull review notes from a remote repository")
     .argument("[remote]", "Remote name", "origin")
     .option("--all", "Pull all notes refs", true)
-    .option("--ref <type>", "Pull specific ref only (reviews, discuss, ci, analyses)")
+    .option(
+      "--ref <type>",
+      "Pull specific ref only (reviews, discuss, ci, analyses)",
+    )
     .action(async (remote: string, options: PullOptions) => {
       try {
         await executePull(remote, options);
@@ -35,13 +42,16 @@ interface PullOptions {
   readonly ref?: string;
 }
 
-async function executePull(remote: string, options: PullOptions): Promise<void> {
+async function executePull(
+  remote: string,
+  options: PullOptions,
+): Promise<void> {
   // Determine which refs to pull
   let refs: NotesRefType[];
   if (options.ref) {
     if (!isValidRefType(options.ref)) {
       throw new Error(
-        `Invalid ref type: ${options.ref}. Valid types: ${ALL_REF_TYPES.join(", ")}`
+        `Invalid ref type: ${options.ref}. Valid types: ${ALL_REF_TYPES.join(", ")}`,
       );
     }
     refs = [options.ref];

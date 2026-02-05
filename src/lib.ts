@@ -22,11 +22,7 @@
 // Git Operations
 // =============================================================================
 
-export type {
-  GitCommandResult,
-  GitOptions,
-  CommitInfo,
-} from "./git/index.js";
+export type { GitCommandResult, GitOptions, CommitInfo } from "./git/index.js";
 
 export {
   exec,
@@ -46,11 +42,7 @@ export {
 } from "./git/index.js";
 
 // Git parsing utilities
-export type {
-  RefInfo,
-  DiffFileStat,
-  DiffStat,
-} from "./git/index.js";
+export type { RefInfo, DiffFileStat, DiffStat } from "./git/index.js";
 
 export {
   parseRefList,
@@ -134,6 +126,7 @@ export {
 export type {
   Comment,
   CommentLocation,
+  CommentSource,
   LineRange,
   CommentWithHash,
   CommentTree,
@@ -164,3 +157,23 @@ export {
   isXNotesErrorWithCode,
   wrapError,
 } from "./types/index.js";
+
+// =============================================================================
+// GitHub Integration
+// =============================================================================
+
+// PR Import/Export types
+export type {
+  ImportOptions,
+  ImportResult,
+  ExportOptions,
+  ExportCandidate,
+  ExportResult,
+} from "./github/index.js";
+
+// PR Import/Export functions
+export {
+  importPRComments,
+  exportToGitHubPR,
+  detectPRNumber,
+} from "./github/index.js";

@@ -63,8 +63,16 @@ describe("parseDiffStat", () => {
 `;
     const result = parseDiffStat(output);
     expect(result.files).toHaveLength(2);
-    expect(result.files[0]).toEqual({ path: "src/file1.ts", insertions: 4, deletions: 6 });
-    expect(result.files[1]).toEqual({ path: "src/file2.ts", insertions: 5, deletions: 0 });
+    expect(result.files[0]).toEqual({
+      path: "src/file1.ts",
+      insertions: 4,
+      deletions: 6,
+    });
+    expect(result.files[1]).toEqual({
+      path: "src/file2.ts",
+      insertions: 5,
+      deletions: 0,
+    });
     expect(result.insertions).toBe(9);
     expect(result.deletions).toBe(6);
   });

@@ -7,7 +7,12 @@
 import { Command } from "commander";
 import { getHeadCommit, resolveRef, getUserEmail } from "../../git/index.js";
 import { readComments, appendComment } from "../../notes/index.js";
-import { createComment, computeCommentHash, type CommentLocation, type Comment } from "../../types/index.js";
+import {
+  createComment,
+  computeCommentHash,
+  type CommentLocation,
+  type Comment,
+} from "../../types/index.js";
 import { formatError, formatSuccess } from "../formatters/index.js";
 
 /**
@@ -54,7 +59,7 @@ interface CommentOptions {
  */
 function findCommentByShortHash(
   comments: readonly Comment[],
-  shortHash: string
+  shortHash: string,
 ): Comment | undefined {
   const matches = comments.filter((c) => {
     const fullHash = computeCommentHash(c);
@@ -65,14 +70,16 @@ function findCommentByShortHash(
     return undefined;
   }
   if (matches.length > 1) {
-    throw new Error(`Ambiguous hash prefix: ${shortHash} matches ${matches.length} comments`);
+    throw new Error(
+      `Ambiguous hash prefix: ${shortHash} matches ${matches.length} comments`,
+    );
   }
   return matches[0];
 }
 
 async function executeComment(
   commitArg: string | undefined,
-  options: CommentOptions
+  options: CommentOptions,
 ): Promise<void> {
   // Resolve commit
   let commit: string;
@@ -84,11 +91,13 @@ async function executeComment(
 
   // Get message (TODO: open editor if not provided)
   if (!options.message) {
-    throw new Error("Message is required. Use -m or --message to provide comment text.");
+    throw new Error(
+      "Message is required. Use -m or --message to provide comment text.",
+    );
   }
 
   // Get author
-  const author = options.author ?? await getUserEmail();
+  const author = options.author ?? (await getUserEmail());
 
   // Build location if file is specified
   let location: CommentLocation | undefined;
@@ -116,7 +125,10 @@ async function executeComment(
   let resolvedParentHash: string | undefined;
   if (options.parent) {
     const existingComments = await readComments(commit);
-    const parentComment = findCommentByShortHash(existingComments, options.parent);
+    const parentComment = findCommentByShortHash(
+      existingComments,
+      options.parent,
+    );
     if (!parentComment) {
       throw new Error(`Parent comment not found: ${options.parent}`);
     }
