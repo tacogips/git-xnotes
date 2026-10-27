@@ -22,7 +22,7 @@
         pkgs-unstable = import nixpkgs-unstable { inherit system; };
 
         # Minimum required bun version
-        minBunVersion = "1.0.0";
+        minBunVersion = "1.4.4";
 
         # git-xnotes package
         git-xnotes = pkgs.stdenv.mkDerivation {
