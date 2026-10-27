@@ -3,8 +3,8 @@
   description = "reviews in git notes";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:tacogips/nixpkgs-security/ae36ce5d71747ef2655933b315a361463ea90d82";
+    nixpkgs-unstable.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -133,7 +133,7 @@ WRAPPER
           # TypeScript tooling
           pkgs-unstable.typescript
           pkgs-unstable.typescript-language-server
-          nodePackages.prettier
+          prettier
 
           # Development tools
           fd
