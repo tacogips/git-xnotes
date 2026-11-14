@@ -1,0 +1,12 @@
+{
+  "variables": {
+    "AUTHOR_EMAIL": "",
+    "AUTHOR_NAME": "tacogips",
+    "DESCRIPTION": "reviews in git notes",
+    "HAS_AUTHOR": false,
+    "HOMEPAGE": "https://github.com/tacogips/git-xnotes",
+    "PROJECT_NAME": "git-xnotes",
+    "REPOSITORY": "https://github.com/user/repo",
+    "VERSION": "0.1.0"
+  }
+}
