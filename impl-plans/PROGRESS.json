@@ -1,0 +1,99 @@
+{
+  "lastUpdated": "2026-02-03T15:00:00Z",
+  "phases": {
+    "1": { "status": "COMPLETED" },
+    "2": { "status": "COMPLETED" },
+    "3": { "status": "COMPLETED" },
+    "4": { "status": "COMPLETED" }
+  },
+  "plans": {
+    "phase1-core-types": {
+      "phase": 1,
+      "status": "Completed",
+      "designRef": "design-docs/specs/architecture.md#core-data-types",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Review Types", "file": "src/types/review.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Comment Types", "file": "src/types/comment.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": true, "deps": [], "name": "CI Types", "file": "src/types/ci.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Analysis Types", "file": "src/types/analysis.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Error Types", "file": "src/types/errors.ts" },
+        "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"], "name": "Type Index", "file": "src/types/index.ts" }
+      }
+    },
+    "phase1-git-layer": {
+      "phase": 1,
+      "status": "Completed",
+      "designRef": "design-docs/specs/notes.md#git-notes-operations",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Git Commands", "file": "src/git/commands.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Git Parser", "file": "src/git/parser.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002"], "name": "Git Index", "file": "src/git/index.ts" }
+      }
+    },
+    "phase1-notes-layer": {
+      "phase": 1,
+      "status": "Completed",
+      "designRef": "design-docs/specs/notes.md",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Notes Refs", "file": "src/notes/refs.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": false, "deps": ["phase1-core-types", "phase1-git-layer"], "name": "Notes Reader", "file": "src/notes/reader.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["phase1-core-types", "phase1-git-layer"], "name": "Notes Writer", "file": "src/notes/writer.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["phase1-git-layer"], "name": "Notes Merger", "file": "src/notes/merger.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["TASK-002", "TASK-004"], "name": "Notes Sync", "file": "src/notes/sync.ts" },
+        "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"], "name": "Notes Index", "file": "src/notes/index.ts" }
+      }
+    },
+    "phase1-cli-basic": {
+      "phase": 1,
+      "status": "Completed",
+      "designRef": "design-docs/specs/command.md",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Output Formatters", "file": "src/cli/formatters/index.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "Request Command", "file": "src/cli/commands/request.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "List Command", "file": "src/cli/commands/list.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "Show Command", "file": "src/cli/commands/show.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "Comment Command", "file": "src/cli/commands/comment.ts" },
+        "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "Push Command", "file": "src/cli/commands/push.ts" },
+        "TASK-007": { "status": "Completed", "parallelizable": false, "deps": ["phase1-notes-layer"], "name": "Pull Command", "file": "src/cli/commands/pull.ts" },
+        "TASK-008": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007"], "name": "CLI Entry", "file": "src/cli/index.ts" }
+      }
+    },
+    "phase2-review-workflow": {
+      "phase": 2,
+      "status": "Completed",
+      "designRef": "design-docs/specs/command.md#review-actions",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": false, "deps": ["phase1-cli-basic"], "name": "Review Service", "file": "src/services/review.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Accept Command", "file": "src/cli/commands/accept.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Reject Command", "file": "src/cli/commands/reject.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Submit Command", "file": "src/cli/commands/submit.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Abandon Command", "file": "src/cli/commands/abandon.ts" }
+      }
+    },
+    "phase3-github": {
+      "phase": 3,
+      "status": "Completed",
+      "designRef": "design-docs/specs/architecture.md#github-integration-phase-2",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "GitHub Client", "file": "src/github/client.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "PR Mapping", "file": "src/github/pr.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002", "phase2-review-workflow"], "name": "Comment Sync", "file": "src/github/sync.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["TASK-003"], "name": "Sync Command", "file": "src/cli/commands/sync.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"], "name": "GitHub Index", "file": "src/github/index.ts" }
+      }
+    },
+    "phase4-advanced": {
+      "phase": 4,
+      "status": "Completed",
+      "designRef": "design-docs/specs/architecture.md#implementation-phases",
+      "tasks": {
+        "TASK-001": { "status": "Completed", "parallelizable": true, "deps": [], "name": "Config Manager", "file": "src/utils/config.ts" },
+        "TASK-002": { "status": "Completed", "parallelizable": false, "deps": ["phase3-github"], "name": "CI Service", "file": "src/services/ci.ts" },
+        "TASK-003": { "status": "Completed", "parallelizable": false, "deps": ["phase3-github"], "name": "Analysis Service", "file": "src/services/analysis.ts" },
+        "TASK-004": { "status": "Completed", "parallelizable": false, "deps": ["TASK-002"], "name": "CI Command", "file": "src/cli/commands/ci.ts" },
+        "TASK-005": { "status": "Completed", "parallelizable": false, "deps": ["TASK-003"], "name": "Analysis Command", "file": "src/cli/commands/analysis.ts" },
+        "TASK-006": { "status": "Completed", "parallelizable": false, "deps": ["TASK-001"], "name": "Config Command", "file": "src/cli/commands/config.ts" }
+      }
+    }
+  }
+}
