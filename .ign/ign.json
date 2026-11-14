@@ -1,0 +1,15 @@
+{
+  "template": {
+    "url": "https://github.com/tacogips/ign-template/bun-ts-v1",
+    "path": "bun-ts-v1",
+    "ref": "main"
+  },
+  "hash": "487bc08f5f7274862b477a055ae6cc6bc1e45e663713b1438f46fdd1b08f3290",
+  "metadata": {
+    "generated_at": "2026-02-01T00:35:59.318211002+09:00",
+    "generated_by": "ign update",
+    "template_name": "bun-ts-v1",
+    "template_version": "1.0.0",
+    "ign_version": "0.1.8"
+  }
+}

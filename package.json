@@ -1,0 +1,57 @@
+{
+  "name": "git-xnotes",
+  "version": "0.1.0",
+  "description": "distributed comments in git notes",
+  "type": "module",
+  "main": "dist/lib.js",
+  "module": "dist/lib.js",
+  "types": "dist/lib.d.ts",
+  "bin": {
+    "git-xnotes": "./dist/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js",
+      "default": "./dist/lib.js"
+    },
+    "./cli": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
+  },
+  "scripts": {
+    "dev": "bun run --watch src/main.ts",
+    "build": "bun build src/main.ts src/lib.ts --outdir dist --target bun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build:cli": "bun build src/main.ts --outdir dist --target bun",
+    "build:lib": "bun build src/lib.ts --outdir dist --target bun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "start": "bun run src/main.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "typecheck": "tsc --noEmit",
+    "lint": "bun run typecheck",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "clean": "rm -rf dist"
+  },
+  "homepage": "https://github.com/tacogips/git-xnotes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tacogips/git-xnotes"
+  },
+  "license": "MIT",
+  "trustedDependencies": [],
+  "devDependencies": {
+    "@types/bun": "1.1.14",
+    "@vitest/ui": "2.1.8",
+    "typescript": "5.7.2",
+    "prettier": "3.4.2",
+    "vitest": "2.1.8"
+  },
+  "dependencies": {
+    "@octokit/rest": "22.0.1",
+    "commander": "14.0.2"
+  }
+}
